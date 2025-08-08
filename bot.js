@@ -32,12 +32,16 @@ bot.catch(errorHandler);
 // Ensure no webhook is set when using long polling (prevents 409 conflicts)
 async function startBot() {
   try {
+    const info = await bot.telegram.getWebhookInfo();
+    if (info && info.url) {
+      logger.info('Existing webhook detected, deleting before polling…');
+    }
     await bot.telegram.deleteWebhook({ drop_pending_updates: true });
   } catch (err) {
     logger.error('Failed to delete webhook (continuing):', err.message || err);
   }
-  await bot.launch();
-  logger.info('🤖 HyperPairs Bot running...');
+  await bot.launch({ dropPendingUpdates: true, allowedUpdates: ['message','callback_query'] });
+  logger.info('🤖 HyperPairs Bot running (long polling)…');
 }
 
 startBot();
@@ -45,3 +49,10 @@ startBot();
 // Enable graceful stop
 process.once('SIGINT', () => bot.stop('SIGINT'));
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
+process.on('unhandledRejection', (err) => {
+  logger.error('UnhandledRejection:', err);
+});
+process.on('uncaughtException', (err) => {
+  logger.error('UncaughtException:', err);
+});
