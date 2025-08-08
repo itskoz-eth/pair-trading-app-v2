@@ -1,12 +1,6 @@
 const { showKingAltList, showKingDirections } = require('../keyboards/king');
 const { universe } = require('../services/marketMock');
-
-const userFavs = new Map(); // demo favorites per user id
-
-function getFavs(userId) {
-  if (!userFavs.has(userId)) userFavs.set(userId, new Set(['ETH', 'SOL']));
-  return userFavs.get(userId);
-}
+const { getUserPrefs, setFavorites } = require('../services/store');
 
 module.exports = (bot) => {
   // Category filters
@@ -20,7 +14,7 @@ module.exports = (bot) => {
   // Favorites list
   bot.action('king_favs', async (ctx) => {
     await ctx.answerCbQuery();
-    const favs = Array.from(getFavs(ctx.from.id));
+    const favs = getUserPrefs(ctx.from.id).favorites;
     if (favs.length === 0) return ctx.reply('No favorites yet. Pick coins and we will add soon.');
     await showKingAltList(ctx, favs);
   });
@@ -29,9 +23,11 @@ module.exports = (bot) => {
   bot.action(/^fav_(\w+)$/i, async (ctx) => {
     await ctx.answerCbQuery();
     const sym = ctx.match[1].toUpperCase();
-    const favs = getFavs(ctx.from.id);
-    if (favs.has(sym)) favs.delete(sym); else favs.add(sym);
-    await ctx.reply(`⭐ Favorites updated: ${Array.from(favs).join(', ')}`);
+    const prefs = getUserPrefs(ctx.from.id);
+    const next = new Set(prefs.favorites || []);
+    if (next.has(sym)) next.delete(sym); else next.add(sym);
+    const saved = setFavorites(ctx.from.id, Array.from(next));
+    await ctx.reply(`⭐ Favorites updated: ${saved.join(', ')}`);
   });
 };
 
