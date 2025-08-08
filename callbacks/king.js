@@ -3,6 +3,24 @@ const { universe } = require('../services/marketMock');
 const { getUserPrefs, setFavorites } = require('../services/store');
 
 module.exports = (bot) => {
+  // Search flow: ask user to type a symbol
+  bot.action('king_search', async (ctx) => {
+    await ctx.answerCbQuery();
+    await ctx.reply('🔎 Type a symbol (e.g., ETH, SOL).');
+    ctx.session.awaitingKingSearch = true;
+  });
+
+  bot.on('text', async (ctx, next) => {
+    if (!ctx.session?.awaitingKingSearch) return next();
+    ctx.session.awaitingKingSearch = false;
+    const q = (ctx.message.text || '').trim().toUpperCase();
+    const found = universe.filter(a => a.symbol !== 'BTC' && a.symbol.includes(q)).map(a => a.symbol);
+    if (found.length === 0) {
+      await ctx.reply('No matches. Try another symbol.');
+      return;
+    }
+    await showKingAltList(ctx, found.slice(0, 20));
+  });
   // Category filters
   bot.action(/^king_cat_(L1|L2)$/i, async (ctx) => {
     await ctx.answerCbQuery();
