@@ -32,7 +32,7 @@ function getUserPrefs(userId) {
   const store = readStore();
   const id = String(userId);
   if (!store.users[id]) {
-    store.users[id] = { favorites: [] };
+    store.users[id] = { favorites: [], portfolio: { positions: [], realizedPnl: 0 }, points: 0 };
     writeStore(store);
   }
   return store.users[id];
@@ -41,12 +41,40 @@ function getUserPrefs(userId) {
 function setFavorites(userId, favorites) {
   const store = readStore();
   const id = String(userId);
-  if (!store.users[id]) store.users[id] = { favorites: [] };
+  if (!store.users[id]) store.users[id] = { favorites: [], portfolio: { positions: [], realizedPnl: 0 }, points: 0 };
   store.users[id].favorites = Array.from(new Set(favorites.map((s) => s.toUpperCase())));
   writeStore(store);
   return store.users[id].favorites;
 }
 
-module.exports = { getUserPrefs, setFavorites };
+function getPortfolioState(userId) {
+  const prefs = getUserPrefs(userId);
+  return prefs.portfolio || { positions: [], realizedPnl: 0 };
+}
+
+function setPortfolioState(userId, portfolio) {
+  const store = readStore();
+  const id = String(userId);
+  if (!store.users[id]) store.users[id] = { favorites: [], portfolio: { positions: [], realizedPnl: 0 }, points: 0 };
+  store.users[id].portfolio = portfolio;
+  writeStore(store);
+  return store.users[id].portfolio;
+}
+
+function getPoints(userId) {
+  const prefs = getUserPrefs(userId);
+  return prefs.points || 0;
+}
+
+function setPoints(userId, points) {
+  const store = readStore();
+  const id = String(userId);
+  if (!store.users[id]) store.users[id] = { favorites: [], portfolio: { positions: [], realizedPnl: 0 }, points: 0 };
+  store.users[id].points = points;
+  writeStore(store);
+  return store.users[id].points;
+}
+
+module.exports = { getUserPrefs, setFavorites, getPortfolioState, setPortfolioState, getPoints, setPoints };
 
 

@@ -1,11 +1,11 @@
 // Minimal in-memory points & streaks for demo
 
-const userIdToPoints = new Map();
+const { getPoints, setPoints, getUserPrefs } = require('./store');
 const userIdToStreak = new Map();
 const userIdToLastWinDate = new Map();
 
 function getUserPoints(userId) {
-  return userIdToPoints.get(userId) || 0;
+  return getPoints(userId) || 0;
 }
 
 function getUserStreak(userId) {
@@ -14,7 +14,7 @@ function getUserStreak(userId) {
 
 function addPoints(userId, delta) {
   const current = getUserPoints(userId);
-  userIdToPoints.set(userId, current + delta);
+  setPoints(userId, current + delta);
 }
 
 function recordWin(userId) {

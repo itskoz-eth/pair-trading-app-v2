@@ -2,14 +2,10 @@
 // Positions represent pair trades with a ratio between long and short legs.
 
 const hyperliquid = require('./hyperliquid');
-
-const userIdToState = new Map();
+const { getPortfolioState, setPortfolioState } = require('./store');
 
 function getUserState(userId) {
-  if (!userIdToState.has(userId)) {
-    userIdToState.set(userId, { positions: [], realizedPnl: 0 });
-  }
-  return userIdToState.get(userId);
+  return getPortfolioState(userId);
 }
 
 function generatePositionId(state) {
@@ -28,7 +24,8 @@ function openDemoPosition(userId, { pairCode, longAsset, shortAsset, ratioLongSh
     entryPrice,
     openedAt: new Date().toISOString(),
   };
-  state.positions.push(position);
+  const next = { ...state, positions: [...state.positions, position] };
+  setPortfolioState(userId, next);
   return position;
 }
 
@@ -38,7 +35,8 @@ function closeDemoPosition(userId, positionId, { exitPrice }) {
   if (idx === -1) return null;
   const [position] = state.positions.splice(idx, 1);
   const pnl = computePairPnl(position, exitPrice);
-  state.realizedPnl += pnl;
+  const next = { positions: state.positions, realizedPnl: (state.realizedPnl || 0) + pnl };
+  setPortfolioState(userId, next);
   return { position, pnl };
 }
 
