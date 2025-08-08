@@ -17,11 +17,13 @@ function generatePositionId(state) {
   return id;
 }
 
-function openDemoPosition(userId, { pairCode, ratioLongShort, entryPrice }) {
+function openDemoPosition(userId, { pairCode, longAsset, shortAsset, ratioLongShort, entryPrice }) {
   const state = getUserState(userId);
   const position = {
     id: generatePositionId(state),
     pairCode, // e.g., BTC_ETH
+    longAsset, // e.g., BTC
+    shortAsset, // e.g., ETH
     ratioLongShort, // { longPct, shortPct }
     entryPrice,
     openedAt: new Date().toISOString(),

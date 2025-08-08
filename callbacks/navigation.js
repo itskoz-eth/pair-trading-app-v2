@@ -34,7 +34,7 @@ module.exports = (bot) => {
   bot.action('scan_vs_btc', async (ctx) => {
     await ctx.answerCbQuery();
     const top = marketMock.getRelativeMoversVsBTC({ window: '24h', limit: 5 });
-    const lines = ['📊 Top movers vs BTC (24h):', '', ...top.map((t, i) => `${i+1}. ${t.symbol}: ${(t.relative*100).toFixed(2)}%`), '', 'Tap to trade vs BTC'];
+    const lines = ['📊 Top movers vs BTC (24h):', '', ...top.map((t, i) => `${i+1}. ${t.symbol}: ${(t.relative*100).toFixed(2)}%`), '', 'Tap below to open: Long ASSET / Short BTC'];
     const keyboard = Markup.inlineKeyboard(
       top.map(t => [Markup.button.callback(`${t.symbol}/BTC`, `trade_${t.symbol}_BTC`)]).concat([[Markup.button.callback('⬅️ Back', 'nav_trade')]])
     );
