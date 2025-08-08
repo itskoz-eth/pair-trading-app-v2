@@ -4,6 +4,8 @@ const DEFAULT_ALTS = ['ETH', 'SOL', 'ARB', 'AVAX', 'OP'];
 
 function kingAltListKeyboard(alts = DEFAULT_ALTS) {
   const rows = alts.map((s) => [Markup.button.callback(s, `king_pick_${s}`)]);
+  rows.unshift([Markup.button.callback('⭐ Favorites', 'king_favs')]);
+  rows.unshift([Markup.button.callback('Sectors: L1', 'king_cat_L1'), Markup.button.callback('L2', 'king_cat_L2')]);
   rows.push([Markup.button.callback('⬅️ Back', 'nav_trade')]);
   return Markup.inlineKeyboard(rows);
 }

@@ -4,8 +4,7 @@ function mainMenuMarkup() {
   return Markup.inlineKeyboard([
     [Markup.button.callback('📈 Trade', 'nav_trade')],
     [Markup.button.callback('📁 Portfolio', 'nav_portfolio')],
-    [Markup.button.callback('❓ Help', 'nav_help')],
-    [Markup.button.callback('🔧 Custom Setup', 'custom_pair')]
+    [Markup.button.callback('❓ Help', 'nav_help')]
   ]);
 }
 

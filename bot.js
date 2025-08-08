@@ -23,7 +23,7 @@ bot.use(async (ctx, next) => {
 });
 
 // Register callback handler modules
-['navigation', 'executeTrade', 'customPair', 'ratio', 'portfolio'].forEach((cb) => {
+['navigation', 'executeTrade', 'customPair', 'ratio', 'portfolio', 'king'].forEach((cb) => {
   require(`./callbacks/${cb}`)(bot);
 });
 
