@@ -29,7 +29,18 @@ bot.use(async (ctx, next) => {
 
 bot.catch(errorHandler);
 
-bot.launch().then(() => logger.info('🤖 HyperPairs Bot running...'));
+// Ensure no webhook is set when using long polling (prevents 409 conflicts)
+async function startBot() {
+  try {
+    await bot.telegram.deleteWebhook({ drop_pending_updates: true });
+  } catch (err) {
+    logger.error('Failed to delete webhook (continuing):', err.message || err);
+  }
+  await bot.launch();
+  logger.info('🤖 HyperPairs Bot running...');
+}
+
+startBot();
 
 // Enable graceful stop
 process.once('SIGINT', () => bot.stop('SIGINT'));
