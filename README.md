@@ -1,0 +1,1 @@
+# HyperPairs v2\n\nAlpha Telegram bot.\n\n## Deploy (Railway)\n1. Push this folder to GitHub (do NOT include .env).\n2. On Railway: New Project -> Deploy from GitHub -> choose repo.\n3. Set env var BOT_TOKEN to your Telegram token.\n4. Deploy.\n\n## Run locally (optional)\n- Create .env with BOT_TOKEN=...\n- npm install\n- npm run start\n
