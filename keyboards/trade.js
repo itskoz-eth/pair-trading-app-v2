@@ -3,6 +3,7 @@ const { Markup } = require('telegraf');
 function tradeMenuMarkup() {
   return Markup.inlineKeyboard([
     [Markup.button.callback('🔍 Movers vs BTC (24h)', 'scan_vs_btc')],
+    [Markup.button.callback('👑 Outlive the King (ALT vs BTC)', 'king')],
     [Markup.button.callback('Long BTC / Short ETH', 'trade_BTC_ETH')],
     [Markup.button.callback('Long SOL / Short ETH', 'trade_SOL_ETH')],
     [Markup.button.callback('Flip: Long ETH / Short BTC', 'trade_ETH_BTC')],
