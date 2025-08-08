@@ -22,6 +22,7 @@ function openDemoPosition(userId, { pairCode, longAsset, shortAsset, ratioLongSh
     shortAsset, // e.g., ETH
     ratioLongShort, // { longPct, shortPct }
     entryPrice,
+    sizeNotional: 100,
     openedAt: new Date().toISOString(),
   };
   const next = { ...state, positions: [...state.positions, position] };
@@ -48,7 +49,7 @@ function computePairPnl(position, currentPrice) {
   const longContribution = (ratioLongShort.longPct / 100) * delta;
   const shortContribution = (ratioLongShort.shortPct / 100) * (-delta);
   // Scale up for display (notional 100 units for demo)
-  const notional = 100;
+  const notional = position.sizeNotional || 100;
   return notional * (longContribution + shortContribution);
 }
 
@@ -70,11 +71,56 @@ function getUnrealizedPnlSnapshot(userId) {
   return unrealized;
 }
 
+function reduceDemoPosition(userId, positionId, { percent, currentPrice }) {
+  const state = getUserState(userId);
+  const idx = state.positions.findIndex((p) => p.id === positionId);
+  if (idx === -1) return null;
+  const position = state.positions[idx];
+  const realizedPortion = Math.max(0, Math.min(1, percent));
+  const pnlFull = computePairPnl(position, currentPrice);
+  const realizedPnl = pnlFull * realizedPortion;
+  const newSize = (position.sizeNotional || 100) * (1 - realizedPortion);
+  const updated = { ...position, sizeNotional: newSize };
+  const nextPositions = [...state.positions];
+  if (newSize <= 0.5) {
+    nextPositions.splice(idx, 1);
+  } else {
+    nextPositions[idx] = updated;
+  }
+  const next = { positions: nextPositions, realizedPnl: (state.realizedPnl || 0) + realizedPnl };
+  setPortfolioState(userId, next);
+  return { position: updated, realizedPnl };
+}
+
+function flipDemoPosition(userId, positionId, { currentPrice }) {
+  const state = getUserState(userId);
+  const idx = state.positions.findIndex((p) => p.id === positionId);
+  if (idx === -1) return null;
+  const old = state.positions[idx];
+  const pnl = computePairPnl(old, currentPrice);
+  const afterClose = { positions: state.positions.filter(p => p.id !== positionId), realizedPnl: (state.realizedPnl || 0) + pnl };
+  const swapped = {
+    id: generatePositionId(state),
+    pairCode: `${old.shortAsset || 'BTC'}_${old.longAsset || 'ALT'}`,
+    longAsset: old.shortAsset,
+    shortAsset: old.longAsset,
+    ratioLongShort: old.ratioLongShort,
+    entryPrice: currentPrice,
+    sizeNotional: old.sizeNotional,
+    openedAt: new Date().toISOString(),
+  };
+  const next = { positions: [...afterClose.positions, swapped], realizedPnl: afterClose.realizedPnl };
+  setPortfolioState(userId, next);
+  return { closedPnl: pnl, newPosition: swapped };
+}
+
 module.exports = {
   getUserPortfolio,
   openDemoPosition,
   closeDemoPosition,
   getUnrealizedPnlSnapshot,
+  reduceDemoPosition,
+  flipDemoPosition,
 };
 
 

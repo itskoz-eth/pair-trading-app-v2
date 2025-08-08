@@ -1,5 +1,6 @@
 const { Markup } = require('telegraf');
 const portfolio = require('../services/portfolio');
+const hyperliquid = require('../services/hyperliquid');
 
 function renderPortfolio(ctx) {
   const userId = ctx.from.id;
@@ -14,11 +15,16 @@ function renderPortfolio(ctx) {
     `• Realized P&L: ${data.realizedPnl.toFixed(2)}`,
     `• Unrealized P&L: ${unreal.toFixed(2)}`,
     '',
-    ...data.positions.map((p, i) => `#${i + 1} ${p.pairCode.replace('_',' / ')} @ ${p.entryPrice} | Ratio ${p.ratioLongShort.longPct}/${p.ratioLongShort.shortPct} | ID ${p.id}`)
+    ...data.positions.map((p, i) => `#${i + 1} Long ${p.longAsset} / Short ${p.shortAsset} | Size ${p.sizeNotional || 100} | Entry ${p.entryPrice} | Ratio ${p.ratioLongShort.longPct}/${p.ratioLongShort.shortPct} | ID ${p.id}`)
   ];
 
   const keyboard = Markup.inlineKeyboard(
-    data.positions.map((p) => [Markup.button.callback(`Close ${p.id.slice(0,6)}…`, `close_${p.id}`)])
+    data.positions.map((p) => [
+      Markup.button.callback(`−25% ${p.id.slice(0,4)}`, `reduce25_${p.id}`),
+      Markup.button.callback(`−50%`, `reduce50_${p.id}`),
+      Markup.button.callback(`Flip`, `flip_${p.id}`),
+      Markup.button.callback(`Close`, `close_${p.id}`)
+    ])
   );
   return ctx.reply(lines.join('\n'), keyboard);
 }
