@@ -10,14 +10,15 @@ function kingAltListKeyboard(alts = DEFAULT_ALTS) {
   return Markup.inlineKeyboard(rows);
 }
 
-function showKingAltList(ctx) {
-  return ctx.reply('👑 Outlive the King: Choose ALT vs BTC', kingAltListKeyboard());
+function showKingAltList(ctx, alts) {
+  return ctx.reply('👑 Outlive the King: Choose ALT vs BTC', kingAltListKeyboard(alts && alts.length ? alts : DEFAULT_ALTS));
 }
 
 function kingDirectionKeyboard(altSymbol) {
   return Markup.inlineKeyboard([
     [Markup.button.callback(`Long ${altSymbol} / Short BTC`, `trade_${altSymbol}_BTC`)],
     [Markup.button.callback(`Long BTC / Short ${altSymbol}`, `trade_BTC_${altSymbol}`)],
+    [Markup.button.callback('⭐ Toggle Favorite', `fav_${altSymbol}`)],
     [Markup.button.callback('⬅️ Choose another ALT', 'king_list')]
   ]);
 }
